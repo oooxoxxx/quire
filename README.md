@@ -1,6 +1,6 @@
 # Quire
 
-原始碼：<https://github.com/oooxoxxx/quire>（私人倉庫）
+原始碼：<https://github.com/oooxoxxx/quire>
 
 Quire（啟記）是一個本地優先的私人日記。它參考 Apple Journal 的簡潔閱讀方式：時間軸、同一天多篇、心情、地點、照片與聲音。日記先存在你的裝置裡。要跨裝置時，同步到**你自己的 Google Drive**，不是 Quire 的伺服器。
 

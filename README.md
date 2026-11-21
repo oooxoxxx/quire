@@ -37,6 +37,18 @@ npm run build
 
 ## 部署
 
+本機預覽與 Vercel 仍用 `npm run build`（含伺服器）。公開網頁用 GitHub Pages，那是一份不含伺服器的靜態站：
+
+```bash
+npm run build:pages
+```
+
+產物在 `dist/client`。正式站是 <https://oooxoxxx.github.io/quire/>。推上 `main` 後，GitHub Actions 的 Pages 工作流程會建置並發布。
+
+日記仍只存在瀏覽器裡。GitHub Pages 沒有 Quire 的後端，Google Drive 同步一樣直接連你的 Google 帳號。OAuth 的「已授權 JavaScript 來源」要加上 `https://oooxoxxx.github.io`。
+
+## 部署到其他主機
+
 這是靜態優先的 PWA（TanStack Start）。建置：
 
 ```bash

@@ -1,4 +1,12 @@
-const CACHE = "quire-shell-v1";
+const CACHE = "quire-shell-v2";
+
+function scopePathname() {
+  try {
+    return new URL(self.registration.scope).pathname.replace(/\/$/, "") || "";
+  } catch {
+    return "";
+  }
+}
 
 self.addEventListener("install", () => {
   self.skipWaiting();
@@ -18,11 +26,15 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
-  if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/auth/")) return;
+  const root = scopePathname();
+  const path = url.pathname;
+  if (root && path !== root && !path.startsWith(`${root}/`)) return;
+  if (path.includes("/api/") || path.includes("/auth/")) return;
   event.respondWith(
     fetch(request)
       .then((response) => {
-        if (response.ok && (request.mode === "navigate" || url.pathname.startsWith("/assets/"))) {
+        const asset = path.includes("/assets/") || path.includes("/_build/");
+        if (response.ok && (request.mode === "navigate" || asset)) {
           const copy = response.clone();
           caches.open(CACHE).then((cache) => cache.put(request, copy)).catch(() => {});
         }
@@ -32,8 +44,9 @@ self.addEventListener("fetch", (event) => {
         const cached = await caches.match(request);
         if (cached) return cached;
         if (request.mode === "navigate") {
-          const home = await caches.match("/");
-          if (home) return home;
+          const home = new URL("./", self.registration.scope);
+          const shell = (await caches.match(home)) || (await caches.match(new URL("index.html", home)));
+          if (shell) return shell;
         }
         return new Response("Offline", { status: 503, headers: { "Content-Type": "text/plain" } });
       }),

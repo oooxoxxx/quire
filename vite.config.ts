@@ -142,10 +142,20 @@ function authPopupPlugin(): Plugin {
   };
 }
 
+function pagesBase(): string {
+  const raw = process.env.QUIRE_PAGES_BASE?.trim() || "/quire/";
+  const withSlash = raw.startsWith("/") ? raw : `/${raw}`;
+  return withSlash.endsWith("/") ? withSlash : `${withSlash}/`;
+}
+
+const pages = process.env.QUIRE_PAGES === "1";
+const pagesBasePath = pages ? pagesBase() : "/";
+
 // `0.0.0.0:8080` is the live-preview contract — don't change host/port.
 // The dev server starts once `src/router.tsx` and `src/routes/` exist — see
 // AGENTS.md § "First scaffold".
 export default defineConfig(({ command, isPreview }) => ({
+  base: pagesBasePath,
   server: {
     host: "0.0.0.0",
     port: 8080,
@@ -166,18 +176,32 @@ export default defineConfig(({ command, isPreview }) => ({
     // PWA head + ?install=1 tutorial page; runs before Start/Nitro.
     grokPwaPlugin(),
     tailwindcss(),
-    tanstackStart(),
-    ...(command === "build" || isPreview
-      ? [
-          nitro({
-            preset: "vercel",
-            // Auto-registers server/middleware/* (the PWA install page +
-            // manifest + head-tag middleware). Nitro v3 defaults serverDir to
-            // false, so removing this silently unwires /?install=1 on deploys.
-            serverDir: "./server",
-          }),
-        ]
-      : []),
+    tanstackStart(
+      pages
+        ? {
+            spa: {
+              enabled: true,
+              prerender: { outputPath: "/index", crawlLinks: false },
+            },
+            router: { basepath: pagesBasePath.replace(/\/$/, "") },
+          }
+        : undefined,
+    ),
+    // GitHub Pages is a static host. The Vercel/Nitro server stays on the
+    // default build so the app-builder preview and `npm run build` are unchanged.
+    ...(pages
+      ? []
+      : command === "build" || isPreview
+        ? [
+            nitro({
+              preset: "vercel",
+              // Auto-registers server/middleware/* (the PWA install page +
+              // manifest + head-tag middleware). Nitro v3 defaults serverDir to
+              // false, so removing this silently unwires /?install=1 on deploys.
+              serverDir: "./server",
+            }),
+          ]
+        : []),
     viteReact(),
   ],
 }));

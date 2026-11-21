@@ -63,7 +63,8 @@ export function AppFrame({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!import.meta.env.PROD || !("serviceWorker" in navigator)) return;
-    void navigator.serviceWorker.register("/sw.js").catch(() => undefined);
+    const base = import.meta.env.BASE_URL || "/";
+    void navigator.serviceWorker.register(`${base}sw.js`).catch(() => undefined);
   }, []);
 
   useEffect(() => {

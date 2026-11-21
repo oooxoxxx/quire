@@ -6,6 +6,11 @@ import appCss from "../styles.css?url";
 
 const APP_NAME = "Quire";
 
+function publicHref(path: string): string {
+  const base = import.meta.env.BASE_URL || "/";
+  return `${base}${path.replace(/^\//, "")}`;
+}
+
 export const Route = createRootRoute({
   head: () => ({
     meta: [
@@ -20,10 +25,10 @@ export const Route = createRootRoute({
       { name: "theme-color", content: "#f3efe6" },
     ],
     links: [
-      { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+      { rel: "icon", type: "image/svg+xml", href: publicHref("/favicon.svg") },
       { rel: "stylesheet", href: appCss },
-      { rel: "manifest", href: "/__grok/manifest.webmanifest" },
-      { rel: "apple-touch-icon", href: "/__grok/icon-180.png" },
+      { rel: "manifest", href: publicHref("/__grok/manifest.webmanifest") },
+      { rel: "apple-touch-icon", href: publicHref("/__grok/icon-180.png") },
     ],
   }),
   component: () => (

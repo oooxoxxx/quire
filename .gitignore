@@ -13,5 +13,6 @@ playwright-report/
 test-results/
 screenshots/
 *.log
-.grok/
+.grok/*
+!.grok/app-env.json
 artifacts/
